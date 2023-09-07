@@ -1,4 +1,5 @@
 const db = require('../models/index.js');
+const { get_author_details } = require('./author.controller.js');
 const category_controller = require('./category.controller.js');
 
 const {Op} = require('sequelize');
@@ -102,7 +103,68 @@ async function get_next_post(createdAt){
     });
 }
 
+async function get_popular_posts(){
+    let result = await db.Blog.findAll({
+        limit: process.env.POPULAR_POSTS_PER_PAGE,
+        order: [
+            ['views', 'DESC']
+        ],
+        attributes: {
+            exclude: ['views', 'content', 'shortDescription', 'updatedAt', 'CategoryId', 'AuthorId'],
+        }
+    });
+    let author = await get_author_details();
+    for (let blog of result){
+        blog.dataValues.firstName = author.firstName;
+        blog.dataValues.lastName = author.lastName;
+    }
+    return result;
+}
+
+async function get_suggestions(categoryId){
+    let result = await db.Blog.findAll({
+        limit: process.env.SUGGESTIONS_PER_PAGE,
+        where: {
+            CategoryId: categoryId,
+        },
+        attributes: {
+            exclude: ['views', 'content', 'updatedAt', 'AuthorId', 'CategoryId']
+        }
+    });
+    let author = await get_author_details();
+    for (let blog of result){
+        blog.dataValues.firstName = author.firstName;
+        blog.dataValues.lastName = author.lastName;
+    }
+    return result;
+}
+
+async function search(query){
+    let result = await db.Blog.findAll({
+        where: {
+            title: {
+                [Op.iLike]: query,
+            },
+            shortDescription: {
+                [Op.iLike]: query,
+            },
+        },
+        attributes: {
+            exclude: ['updatedAt', 'content', 'AuthorId', 'CategoryId'],
+        }
+    });
+    let author = await get_author_details();
+    for (let blog of result){
+        blog.dataValues.firstName = author.firstName;
+        blog.dataValues.lastName = author.lastName;
+    }
+    return result;
+}
+
 module.exports = {
+    search,
+    get_suggestions,
+    get_popular_posts,
     get_previous_post,
     get_next_post,
     increment_views,

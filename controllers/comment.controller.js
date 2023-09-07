@@ -26,6 +26,28 @@ async function get_comments(blogId){
     return comments;
 }
 
+async function check_reply_exists(commentId){
+    let comment = db.Comment.findByPk(commentId);
+    if (comment.CommentId !== null){
+        return false;
+    }
+    return true;
+}
+
+async function create_comment(blog, name, message, email, CommentId){    
+    CommentId = CommentId.length? parseInt(CommentId): null;
+    let comment = await db.Comment.create({
+        BlogId: blog.id,
+        name,
+        message,
+        email,
+        CommentId,
+    });
+    return comment;
+}
+
 module.exports = {
+    create_comment,
+    check_reply_exists,
     get_comments,
 }

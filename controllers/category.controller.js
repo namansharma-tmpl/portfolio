@@ -30,7 +30,7 @@ async function get_blogs_of_category(category){
     return result;
 }
 
-module.exports = {
+module.exports = {    
     get_categories,
     get_category,
     get_blogs_of_category,

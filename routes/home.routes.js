@@ -16,7 +16,7 @@ router.get('/about-me', async (req, res, next) => {
     else {
         delete ans.status;
         res.status(200).json(ans.result);
-    }    
+    }
     next();
 });
 

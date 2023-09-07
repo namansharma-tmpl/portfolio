@@ -2,11 +2,19 @@ const db = require('../models/index');
 const author_controller = require('./author.controller');
 
 async function get_all_tags(){
-    return await db.Tag.findAll();
+    return await db.Tag.findAll({
+        attributes: {
+            exclude: ['updatedAt', 'createdAt'],
+        }
+    });
 }
 
 async function get_tag(tagId){
-    return await db.Tag.findByPk(tagId);
+    return await db.Tag.findByPk(tagId, {
+        attributes: {
+            exclude: ['updatedAt', 'createdAt'],
+        }
+    });
 }
 
 async function get_blogs_of_tag(tag){

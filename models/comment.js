@@ -40,17 +40,14 @@ module.exports = (sequelize, DataTypes) => {
 		},
 		email: {
 			type: DataTypes.STRING(200),
-			allowNull: false,			
+			allowNull: false,
+			defaultValue: '',	
 			validate: {
 				checkLength: function(){
 					if (this.getDataValue('email').length < 1){
 						throw new Error('Message cannot be empty');
 					}
-				},
-				validateEmail:	function validateEmail(email) {
-					const emailRegex = /^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/;
-				  	return emailRegex.test(email);
-				}
+				}			
 			}
 		},
 		message: {
@@ -67,6 +64,7 @@ module.exports = (sequelize, DataTypes) => {
 		website: {
 			type: DataTypes.STRING(1000),
 			allowNull: false,
+			defaultValue: '',
 		},
 	}, {
 		sequelize,

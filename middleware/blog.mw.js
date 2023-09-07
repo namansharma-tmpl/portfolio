@@ -3,6 +3,7 @@ const category_controller = require('../controllers/category.controller');
 const tag_controller = require('../controllers/tag.controller');
 const comment_controller = require('../controllers/comment.controller');
 const author_contoller = require('../controllers/author.controller');
+const comment = require('../models/comment');
 
 
 
@@ -104,10 +105,75 @@ async function get_comments(blogId){
     return {status: 200, result};
 }
 
+
+
+async function get_popular_posts(){
+    let result;
+    try {
+        result = await blog_controller.get_popular_posts();
+    }
+    catch (err){
+        console.log(err);
+        return {status: 500};
+    }
+    return {status: 200, result};
+}
+
+async function get_suggestions(categoryId){
+    categoryId = parseInt(categoryId);
+    let result;
+    try {
+        result = await blog_controller.get_suggestions(categoryId);
+    }
+    catch (err){
+        console.log(err);
+        return {status: 500};
+    }
+    return {status: 200, result};
+}
+
+
+async function post_comment(blogId, body){    
+    try {
+        if (body.name.length < 1 || body.message.length < 1){
+            throw new Error('invalid details');
+        }
+    }
+    catch {
+        console.log(err);
+        return {status: 400};
+    }    
+    let blog;
+    try {
+        blog = await blog_controller.get_blog_by_id(blogId);
+    }
+    catch (err){
+        console.log(err);
+        return {status: 404};
+    }
+    let result;
+    try {
+        let name = body.name;
+        let message = body.message;
+        let email = 'email' in body && body.email != null? body.email: '';
+        let replyTo = 'replyTo' in body && body.replyTo != null? body.replyTo: '';
+        result = await comment_controller.create_comment(blog, name, message, email, replyTo);
+    }
+    catch (err){
+        console.log(err);
+        return {status: 500};
+    }
+    return {status: 200, result};
+
+}
+
 module.exports = {
+    post_comment,
     get_comments,    
     get_blogs_by_categories,
     get_blogs_by_category,
     get_single_blog,
     get_blogs_by_tag,
+    get_popular_posts,
+    get_suggestions,
 };
