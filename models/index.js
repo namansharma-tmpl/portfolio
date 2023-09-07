@@ -9,10 +9,12 @@ const env = process.env.NODE_ENV || 'development';
 const config = require(__dirname + '/../config/config.json')[env];
 const db = {};
 
-const sequelize = new Sequelize(process.env.DATABASE, process.env.DB_USERNAME, process.env.DB_PASSWORD, {
-	host: process.env.DB_HOST,
-	dialect: process.env.DIALECT,/* one of 'mysql' | 'postgres' | 'sqlite' | 'mariadb' | 'mssql' | 'db2' | 'snowflake' | 'oracle' */
-});
+// const sequelize = new Sequelize(process.env.DATABASE, process.env.DB_USERNAME, process.env.DB_PASSWORD, {
+// 	host: process.env.DB_HOST,
+// 	dialect: process.env.DIALECT,/* one of 'mysql' | 'postgres' | 'sqlite' | 'mariadb' | 'mssql' | 'db2' | 'snowflake' | 'oracle' */
+// });
+
+const sequelize = new Sequelize('postgres://admin:YmeztdkjOOnnX7xCRj3J8hHwuAjof4go@dpg-cjk9j3uphtvs739gt190-a.singapore-postgres.render.com/mydb_raz6?ssl=true');
 
 // const sequelize = new Sequelize(process.env.DATABASE, process.env.USERNAME, process.env.PASSWORD, {
 // 	host: process.env.HOST,
