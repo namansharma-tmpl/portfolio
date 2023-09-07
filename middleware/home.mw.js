@@ -36,6 +36,10 @@ async function get_projects_by_category(categoryId){
     }
     let result;
     try {
+        let project_category_exists = project_controller.check_project_category_exists(categoryId);
+        if (!project_category_exists){
+            return {status: 404};
+        }
         result = await project_controller.get_projects_by_category(categoryId);
     }
     catch (err){
@@ -78,25 +82,6 @@ async function get_blogs_by_page(pageNo){
         numberOfBlogsPerPage: process.env.BLOGS_PER_PAGE
     };
 }
-
-// async function get_home(){
-//     let authorDetails;
-//     try {
-//         authorDetails = await author_controller.get_author_details();
-//     }
-//     catch (err){
-//         console.log(err);
-//         return {status: 500};
-//     }
-//     let blogs = await get_blogs_by_page(1);    
-//     if (blogs.status != 200){
-//         return {status: blogs.status};
-//     }
-//     delete blogs.status;
-//     return {authorDetails, blogs, status: 200};
-// }
-
-
 
 
 module.exports = {    

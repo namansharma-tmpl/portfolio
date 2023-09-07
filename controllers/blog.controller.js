@@ -142,12 +142,14 @@ async function get_suggestions(categoryId){
 async function search(query){
     let result = await db.Blog.findAll({
         where: {
-            title: {
-                [Op.iLike]: query,
-            },
-            shortDescription: {
-                [Op.iLike]: query,
-            },
+            [Op.or]: [{
+                title: {
+                    [Op.iLike]: query,
+                }},{
+                shortDescription: {
+                    [Op.iLike]: query,
+                }},
+            ]
         },
         attributes: {
             exclude: ['updatedAt', 'content', 'AuthorId', 'CategoryId'],

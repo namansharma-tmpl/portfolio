@@ -23,27 +23,25 @@ async function get_blogs_by_categories(){
     catch (err){
         console.log(err);
         return {status: 500};
-    }
-    // try {
-    //     result.tags = await tag_controller.get_all_tags();
-    // }
-    // catch (err){
-    //     console.log(err);
-    //     return {status: 500};
-    // }
+    }    
     return {status: 200, result};
 }
 
 async function get_blogs_by_category(categoryId){
-    let result;
+    let result;    
     try {
         let category = await category_controller.get_category(categoryId);
+        if (category === null){
+            return {status: 404};
+        }
+        console.log('hello hey');
         result = await category_controller.get_blogs_of_category(category);
     }
     catch (err){
         console.log(err);
         return {status: 500};
     }
+    console.log('yeah');
     return {status: 200, result};
 }
 
@@ -51,6 +49,9 @@ async function get_blogs_by_tag(tagId){
     let result;
     try {
         let tag = await tag_controller.get_tag(tagId);
+        if (tag === null){
+            return {status: 404};
+        }
         result = await tag_controller.get_blogs_of_tag(tag);
     }
     catch (err){
@@ -96,6 +97,16 @@ async function get_single_blog(blogId){
 async function get_comments(blogId){
     let result;
     try {
+        let blog = blog_controller.get_blog_by_id(blogId);
+        if (blog === null){
+            return {status: 404};
+        }
+    }
+    catch (err){
+        console.log(err);
+        return {status: 500};
+    }
+    try {
         result = await comment_controller.get_comments(blogId);
     }
     catch (err){
@@ -123,6 +134,10 @@ async function get_suggestions(categoryId){
     categoryId = parseInt(categoryId);
     let result;
     try {
+        let category = await category_controller.get_category(categoryId);
+        if (category === null){
+            return {status: 404};
+        }
         result = await blog_controller.get_suggestions(categoryId);
     }
     catch (err){
