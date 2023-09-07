@@ -18,14 +18,14 @@ async function send_mail(body){
     let transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-            user: 'sherlockjames001@gmail.com',
-            pass: 'zwnaiozyuqbvkmqk',
+            user: process.env.EMAIL,
+            pass: process.env.EMAIL_PASS,
         }
     });
     
     let mailOptions = {
-        from: 'sherlockjames001@gmail.com',
-        to: 'sherlockjames001@gmail.com',
+        from: process.env.EMAIL,
+        to: process.env.EMAIL,
         subject: 'Thank you ' + firstName + ' ' + lastName + ' for contacting',
         text: message,
     };
