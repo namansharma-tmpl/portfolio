@@ -1,23 +1,23 @@
 {
   "development": {
-    "username": "myworld",
-    "password": "myworld",
-    "database": "portfolio",
-    "host": "localhost",
-    "dialect": "postgres"
+    "username": "",
+    "password": "",
+    "database": "",
+    "host": "",
+    "dialect": ""
   },
   "test": {
-    "username": "myworld",
-    "password": "myworld",
-    "database": "database_test",
-    "host": "localhost",
-    "dialect": "postgres"
+    "username": "",
+    "password": "",
+    "database": "",
+    "host": "",
+    "dialect": ""
   },
   "production": {
-    "username": "myworld",
-    "password": "myworld",
-    "database": "database_production",
-    "host": "localhost",
-    "dialect": "postgres"
+    "username": "",
+    "password": "",
+    "database": "",
+    "host": "",
+    "dialect": ""
   }
 }
