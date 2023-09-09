@@ -33,15 +33,13 @@ async function get_blogs_by_category(categoryId){
         let category = await category_controller.get_category(categoryId);
         if (category === null){
             return {status: 404};
-        }
-        console.log('hello hey');
+        }        
         result = await category_controller.get_blogs_of_category(category);
     }
     catch (err){
         console.log(err);
         return {status: 500};
-    }
-    console.log('yeah');
+    }    
     return {status: 200, result};
 }
 
@@ -65,10 +63,13 @@ async function get_single_blog(blogId){
     let result = {};
     try {        
         result.blog = await blog_controller.get_blog_by_id(blogId);
+        if (result.blog === null){
+            return {status: 404};
+        }
     }
     catch (err){
         console.log(err);
-        return {status: 404};
+        return {status: 500};
     }
     try {
         await blog_controller.increment_views(blogId);
@@ -150,21 +151,24 @@ async function get_suggestions(categoryId){
 
 async function post_comment(blogId, body){    
     try {
-        if (body.name.length < 1 || body.message.length < 1){
+        if (!body.name || !body.message || body.name.length < 1 || body.message.length < 1){
             throw new Error('invalid details');
         }
     }
-    catch {
+    catch (err){
         console.log(err);
         return {status: 400};
     }    
     let blog;
     try {
         blog = await blog_controller.get_blog_by_id(blogId);
+        if (blog === null){
+            return {status :404};
+        }
     }
     catch (err){
         console.log(err);
-        return {status: 404};
+        return {status: 500};
     }
     let result;
     try {
@@ -173,6 +177,8 @@ async function post_comment(blogId, body){
         let email = 'email' in body && body.email != null? body.email: '';
         let replyTo = 'replyTo' in body && body.replyTo != null? body.replyTo: '';
         result = await comment_controller.create_comment(blog, name, message, email, replyTo);
+        delete result.dataValues.updatedAt;
+        delete result.dataValues.CommentId;
     }
     catch (err){
         console.log(err);
