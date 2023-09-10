@@ -176,6 +176,13 @@ async function post_comment(blogId, body){
         let message = body.message;
         let email = 'email' in body && body.email != null? body.email: '';
         let replyTo = 'replyTo' in body && body.replyTo != null? body.replyTo: '';
+        if (replyTo){
+            let replyComment = comment_controller.get_comment(replyTo);
+            if (replyComment.BlogId !== blogId){
+                return {status: 400};
+            }
+        }
+        let replyComment = comment_controller.get_comment(replyTo);
         result = await comment_controller.create_comment(blog, name, message, email, replyTo);
         delete result.dataValues.updatedAt;
         delete result.dataValues.CommentId;

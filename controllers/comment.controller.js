@@ -25,6 +25,9 @@ async function get_comments(blogId){
     }
     return comments;
 }
+async function get_comment(commentId){
+    await db.Comment.findByPk(commentId);
+}
 
 async function check_reply_exists(commentId){
     let comment = db.Comment.findByPk(commentId);
@@ -47,6 +50,7 @@ async function create_comment(blog, name, message, email, CommentId){
 }
 
 module.exports = {
+    get_comment,
     create_comment,
     check_reply_exists,
     get_comments,
