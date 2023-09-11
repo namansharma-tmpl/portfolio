@@ -38,19 +38,20 @@ async function aboutMe(req, res, next){
 
 async function projectsByCategory(req, res, next){
     try {
-        let projectCategoryExists = await db.ProjectCategory.findByPk(req.query.categoryId);
+        let projectCategoryExists = await db.ProjectCategory.findByPk(req.params.categoryId);
         if (!projectCategoryExists){
             next(createError(404, "Project category does not exist"));
             return;
         }
         let result = await db.Project.findAll({
             where: {
-                ProjectCategoryId: req.query.categoryId,
+                ProjectCategoryId: req.params.categoryId,
             },
             attributes: {
                 include: ['name', 'link', 'image'],
             }
         });
+        res.status(200).json(result);
     }
     catch (err){
         console.log(err);
