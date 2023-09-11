@@ -33,18 +33,17 @@ async function check_reply_exists(commentId){
     let comment = db.Comment.findByPk(commentId);
     if (comment.CommentId !== null){
         return false;
-    }
+    }    
     return true;
 }
 
-async function create_comment(blog, name, message, email, CommentId){    
-    CommentId = CommentId.length? parseInt(CommentId): null;
+async function create_comment(blog, name, message, email, CommentId){
     let comment = await db.Comment.create({
         BlogId: blog.id,
         name,
         message,
         email,
-        CommentId,
+        CommentId: (CommentId? CommentId: null),
     });
     return comment;
 }

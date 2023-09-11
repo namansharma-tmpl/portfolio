@@ -65,22 +65,18 @@ async function get_blogs_by_page(pageNo){
     if (Math.ceil(total_blogs / process.env.BLOGS_PER_PAGE) < pageNo){
         return {status: 404};
     }    
-    let result;
+    let result = {};
     try {
-        result = await blog_controller.get_blogs_by_page(pageNo);
+        result.blogs = await blog_controller.get_blogs_by_page(pageNo);
     }
     catch (err){
         console.log(err);
         return {status: 500};
     }
-    let end = Math.ceil(total_blogs / process.env.BLOGS_PER_PAGE) === pageNo? true: false;    
-    return {
-        status: 200,
-        blogs: result,
-        end,
-        maxBlogs: total_blogs,
-        numberOfBlogsPerPage: process.env.BLOGS_PER_PAGE
-    };
+    result.end = Math.ceil(total_blogs / process.env.BLOGS_PER_PAGE) === pageNo? true: false;
+    result.maxBlogs = total_blogs;
+    result.numberOfBlogsPerPage = process.env.BLOGS_PER_PAGE;
+    return {status: 200, result};
 }
 
 
