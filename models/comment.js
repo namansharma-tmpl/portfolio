@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
 				onUpdate: 'CASCADE',
 			}),
 			Comment.hasOne(models.Comment, {
+				as: 'Replies',
 				onDelete: 'CASCADE',
 				onUpdate: 'CASCADE',
 			});
