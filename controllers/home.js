@@ -5,7 +5,7 @@ async function projectCategories(req, res, next){
     try {
         let result = await db.ProjectCategory.findAll({
             attributes: {
-                include: ['id', 'value'],
+                include: ['id', 'value', 'image'],
             }
         })
         res.status(200).json(result);
