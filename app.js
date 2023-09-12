@@ -4,6 +4,7 @@ const express = require('express');
 const db = require('./models/index');
 const app = express();
 const configs = require('./config/routes');
+const cors = require('cors');
 
 async function authDbConn(){
     try {
@@ -18,6 +19,7 @@ async function authDbConn(){
 
 authDbConn();
 
+app.use(cors());
 app.use(express.json()); // for parsing application/json
 app.use(express.urlencoded({ extended: true }));  // for parsing application/x-www-form-urlencoded
 
