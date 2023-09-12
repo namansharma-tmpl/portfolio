@@ -100,14 +100,26 @@ async function singleBlog(req, res, next){
         result.prevPost = await db.Blog.findOne({
             where: {
                 createdAt: {
-                    [Op.lt]: new Date(result.blog.createdAt),
+                    [Op.lte]: new Date(result.blog.createdAt),
                 },
+                id: {
+                    [Op.ne]: result.blog.id,
+                },
+                attributes: {
+                    exclude: ['views', 'content', 'createdAt', 'updatedAt', 'AuthorId', 'CategoryId']
+                }
             },
         });
         result.nextPost = await db.Blog.findOne({
             where: {
                 createdAt: {
-                    [Op.gt]: new Date(result.blog.createdAt),
+                    [Op.gte]: new Date(result.blog.createdAt),
+                },
+                id: {
+                    [Op.ne]: result.blog.id,
+                },
+                attributes: {
+                    exclude: ['views', 'content', 'createdAt', 'updatedAt', 'AuthorId', 'CategoryId']
                 },
             },        
         });
