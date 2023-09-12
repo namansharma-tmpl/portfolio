@@ -98,10 +98,7 @@ async function singleBlog(req, res, next){
             }
         });
         result.prevPost = await db.Blog.findOne({
-            where: {
-                createdAt: {
-                    [Op.lte]: new Date(result.blog.createdAt),
-                },
+            where: {                
                 id: {
                     [Op.ne]: result.blog.id,
                 },                
