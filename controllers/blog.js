@@ -104,11 +104,11 @@ async function singleBlog(req, res, next){
                 },
                 id: {
                     [Op.ne]: result.blog.id,
-                },
-                attributes: {
-                    exclude: ['views', 'content', 'createdAt', 'updatedAt', 'AuthorId', 'CategoryId']
-                }
+                },                
             },
+            attributes: {
+                exclude: ['views', 'content', 'createdAt', 'updatedAt', 'AuthorId', 'CategoryId']
+            }
         });
         result.nextPost = await db.Blog.findOne({
             where: {
@@ -117,11 +117,11 @@ async function singleBlog(req, res, next){
                 },
                 id: {
                     [Op.ne]: result.blog.id,
-                },
-                attributes: {
-                    exclude: ['views', 'content', 'createdAt', 'updatedAt', 'AuthorId', 'CategoryId']
-                },
-            },        
+                },                
+            },    
+            attributes: {
+                exclude: ['views', 'content', 'createdAt', 'updatedAt', 'AuthorId', 'CategoryId']
+            },    
         });
         res.status(200).json(result);
         return;
