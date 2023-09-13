@@ -83,7 +83,13 @@ async function singleBlog(req, res, next){
                 attributes: ['firstName', 'lastName'],
             }, {
                 model: db.Category,
-                attributes: ['value'],
+                attributes: ['value', 'id'],
+            }, {
+                model: db.Tag,
+                attributes: ['value', 'id'],
+                through: {
+                    attributes: [],
+                },
             }],
         });
         if (result.blog === null){
