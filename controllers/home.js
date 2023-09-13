@@ -5,7 +5,7 @@ async function projectCategories(req, res, next){
     try {
         let result = await db.ProjectCategory.findAll({
             attributes: {
-                include: ['id', 'value'],
+                exclude: ['image', 'createdAt', 'updatedAt', '']
             }
         })
         res.status(200).json(result);
@@ -35,6 +35,22 @@ async function aboutMe(req, res, next){
     }    
 }
 
+
+async function projects(req, res, next){
+    try {
+        let result = await db.Project.findAll({
+            attributes: {
+                exclude: ['id', 'description', 'createdAt', 'updatedAt', 'AuthorId'],
+            }
+        });
+        res.status(200).json(result);
+    }
+    catch (err){
+        console.log(err);
+        next(createError(500, "Something went wrong"));
+        return;
+    }
+}
 
 async function projectsByCategory(req, res, next){
     try {
@@ -101,6 +117,7 @@ async function blogsByPage(req, res, next){
 module.exports = {    
     blogsByPage,
     aboutMe,
+    projects,
     projectCategories,
     projectsByCategory,
 }
