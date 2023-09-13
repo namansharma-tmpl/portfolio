@@ -23,7 +23,10 @@ module.exports = (sequelize, DataTypes) => {
 		value: {
 			type: DataTypes.STRING(100),
 			allowNull: false,
-		}		
+		},
+		image: {
+			type: DataTypes.STRING(1000),
+		}	
 	}, {
 		sequelize,
 		freezeTableName: true,
