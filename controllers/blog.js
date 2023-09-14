@@ -111,7 +111,8 @@ async function singleBlog(req, res, next){
             },
             attributes: {
                 exclude: ['views', 'content', 'createdAt', 'updatedAt', 'AuthorId', 'CategoryId']
-            }
+            },
+            order: db.sequelize.random(),
         });
         result.nextPost = await db.Blog.findOne({
             where: {
@@ -120,11 +121,13 @@ async function singleBlog(req, res, next){
                 },
                 id: {
                     [Op.ne]: result.blog.id,
-                },                
-            },    
+                    [Op.ne]: result.prevPost.id,
+                },
+            },
             attributes: {
                 exclude: ['views', 'content', 'createdAt', 'updatedAt', 'AuthorId', 'CategoryId']
-            },    
+            },
+            ordering: db.sequelize.random(),
         });
         res.status(200).json(result);
         return;
