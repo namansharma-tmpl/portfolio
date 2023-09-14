@@ -245,14 +245,14 @@ async function postComment(req, res, next){
         let replyTo = 'replyTo' in req.body && req.body.replyTo != null? req.body.replyTo: '';
         if (replyTo.length){
             let replyComment = await db.Comment.findByPk(replyTo);
-            if (!replyComment || replyComment.BlogId !== req.blogId){
+            if (!replyComment || replyComment.BlogId !== req.params.blogId){
                 next(createError(400, "Missing or invalid details"));
                 return;
             }
         }
         else {
             replyTo = null;
-        }
+        }        
         let result = await db.Comment.create({
             BlogId: req.params.blogId,
             name,
