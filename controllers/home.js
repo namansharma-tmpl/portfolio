@@ -78,6 +78,7 @@ async function projectsByCategory(req, res, next){
 
 async function blogsByPage(req, res, next){
     try {
+        const {perPage} = req.query
         req.query.pageNo = parseInt(req.query.pageNo);
         if (!req.query.pageNo || req.query.pageNo < 1){
             next(createError(404, "Wrong page number"));
@@ -90,7 +91,7 @@ async function blogsByPage(req, res, next){
         }    
         let result = {};
         result.blogs = await db.Blog.findAll({
-            limit: process.env.BLOGS_PER_PAGE,
+            limit: perPage || process.env.BLOGS_PER_PAGE,
             offset: (req.query.pageNo - 1) * process.env.BLOGS_PER_PAGE,
             attributes: {
                 exclude: ['content', 'updatedAt', 'CategoryId', 'views', 'AuthorId'],
@@ -102,7 +103,7 @@ async function blogsByPage(req, res, next){
         });
         result.end = Math.ceil(totalBlogs / process.env.BLOGS_PER_PAGE) === req.query.pageNo? true: false;
         result.maxBlogs = totalBlogs;
-        result.numberOfBlogsPerPage = process.env.BLOGS_PER_PAGE;
+        result.numberOfBlogsPerPage = perPage || process.env.BLOGS_PER_PAGE;
         res.status(200).json(result);
         return;
     }
