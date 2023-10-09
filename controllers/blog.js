@@ -7,7 +7,7 @@ let redisClient;
 
 (async () => {
 	redisClient = redis.createClient({
-        url: 'redis://alice:foobared@awesome.redis.server:6380'
+        url: process.env.REDIS_URL
     });
 
 	redisClient.on("error", (error) => console.error(`Error : ${error}`));
