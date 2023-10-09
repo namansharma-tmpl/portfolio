@@ -1,10 +1,28 @@
 const db = require('../models/index');
 const {Op} = require('sequelize');
 const createError = require('http-errors');
+const redis = require("redis");
+
+let redisClient;
+
+(async () => {
+	redisClient = redis.createClient();
+
+	redisClient.on("error", (error) => console.error(`Error : ${error}`));
+
+	await redisClient.connect();
+})();
+
 
 async function blogs(req, res, next){
     try {
         let result;
+        const cacheResults = await redisClient.get('blogs#' + req.query.categoryId + '#' + req.query.tagId);
+        if (cacheResults) {            
+            result = JSON.parse(cacheResults);
+            res.status(200).json(result);
+            return;
+        }
         if ('categoryId' in req.query){
             if (!req.query.categoryId){                
                 next(createError(400, "Category id not provided"));
@@ -60,7 +78,8 @@ async function blogs(req, res, next){
                     },
                 }
             });
-        }    
+        }
+        await redisClient.set('blogs#' + req.query.categoryId + '#' + req.query.tagId, JSON.stringify(result));
         res.status(200).json(result);
         return;
     }
@@ -74,6 +93,12 @@ async function blogs(req, res, next){
 async function singleBlog(req, res, next){
     try {
         let result = {};
+        const cacheResults = await redisClient.get('blog#' + req.params.blogId);
+        if (cacheResults) {            
+            result = JSON.parse(cacheResults);
+            res.status(200).json(result);
+            return;
+        }
         result.blog = await db.Blog.findByPk(req.params.blogId, {
             attributes: {
                 exclude: ['updatedAt', 'AuthorId', 'CategoryId'],
@@ -128,7 +153,8 @@ async function singleBlog(req, res, next){
                 exclude: ['views', 'content', 'createdAt', 'updatedAt', 'AuthorId', 'CategoryId']
             },
             ordering: db.sequelize.random(),
-        });
+        });        
+        await redisClient.set('blog#' + req.params.blogId, JSON.stringify(result));
         res.status(200).json(result);
         return;
     }
@@ -142,12 +168,19 @@ async function singleBlog(req, res, next){
 
 async function comments(req, res, next){
     try {
+        let result;
+        const cacheResults = await redisClient.get('comments#' + req.params.blogId);
+        if (cacheResults) {            
+            result = JSON.parse(cacheResults);
+            res.status(200).json(result);
+            return;
+        }
         let blog = await db.Blog.findByPk(req.params.blogId);
         if (blog === null){
             next(createError(404, "Blog not found"));
             return;
         }
-        let result = await db.Comment.findAll({
+        result = await db.Comment.findAll({
             where: {
                 BlogId: req.params.blogId,
                 ReplyId: null,
@@ -161,7 +194,8 @@ async function comments(req, res, next){
                 attributes: ['name', 'createdAt', 'message'],
             },
             ordering: [['createdAt']],
-        });        
+        });
+        await redisClient.set('comments#' + req.params.blogId, JSON.stringify(result));    
         res.status(200).json(result);
         return;
     }
@@ -176,7 +210,14 @@ async function comments(req, res, next){
 
 async function popularPosts(req, res, next){
     try {
-        let result = await db.Blog.findAll({
+        let result;
+        const cacheResults = await redisClient.get('popularPosts');
+        if (cacheResults) {            
+            result = JSON.parse(cacheResults);
+            res.status(200).json(result);
+            return;
+        }
+        result = await db.Blog.findAll({
             limit: process.env.POPULAR_POSTS_PER_PAGE,
             order: [
                 ['views', 'DESC']
@@ -189,7 +230,8 @@ async function popularPosts(req, res, next){
                 attributes: ['firstName', 'lastName'],
             }
         });
-        res.status(200).json(result);
+        await redisClient.set('popularPosts', JSON.stringify(result));
+        res.status(200).json(result);        
         return;
     }
     catch (err){
@@ -205,7 +247,14 @@ async function suggestions(req, res, next){
             next(createError(400, "Invalid category id"));
             return;
         }
-        let result = await db.Blog.findAll({
+        let result;
+        const cacheResults = await redisClient.get('suggestions#' + req.params.categoryId);
+        if (cacheResults) {            
+            result = JSON.parse(cacheResults);
+            res.status(200).json(result);
+            return;
+        }
+        result = await db.Blog.findAll({
             where: {
                 CategoryId: req.params.categoryId,                
             },
@@ -216,7 +265,8 @@ async function suggestions(req, res, next){
                 model: db.Author,
                 attributes: ['firstName', 'lastName'],
             },
-        });        
+        });
+        await redisClient.set('suggestions#' + req.params.categoryId, JSON.stringify(result));
         res.status(200).json(result);
         return;
     }
@@ -262,6 +312,7 @@ async function postComment(req, res, next){
         });
         delete result.dataValues.updatedAt;
         delete result.dataValues.ReplyId;
+        await redisClient.del('comments#' + req.params.blogId)
         res.status(200).json(result);
         return;
     }

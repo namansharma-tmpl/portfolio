@@ -1,13 +1,33 @@
 const db = require('../models/index');
 const createError = require('http-errors');
+const redis = require('redis');
+
+let redisClient;
+
+(async () => {
+	redisClient = redis.createClient();
+
+	redisClient.on("error", (error) => console.error(`Error : ${error}`));
+
+	await redisClient.connect();
+})();
+
 
 async function projectCategories(req, res, next){
     try {
-        let result = await db.ProjectCategory.findAll({
+        let result;
+        const cacheResults = await redisClient.get('project-categories');
+        if (cacheResults) {            
+            result = JSON.parse(cacheResults);
+            res.status(200).json(result);
+            return;
+        }
+        result = await db.ProjectCategory.findAll({
             attributes: {
                 exclude: ['image', 'createdAt', 'updatedAt', '']
             }
         })
+        await redisClient.set('project-categories', JSON.stringify(result));
         res.status(200).json(result);
         return;
     }
@@ -20,11 +40,19 @@ async function projectCategories(req, res, next){
 
 async function aboutMe(req, res, next){
     try {
-        let result = await db.Author.findOne({
+        let result;
+        const cacheResults = await redisClient.get('about-me');
+        if (cacheResults) {            
+            result = JSON.parse(cacheResults);
+            res.status(200).json(result);
+            return;
+        }
+        result = await db.Author.findOne({
             attributes: {            
                 exclude: ['updatedAt', 'createdAt', 'id', 'email']
             },
         });
+        await redisClient.set('about-me', JSON.stringify(result));
         res.status(200).json(result);
         return;
     }
@@ -38,12 +66,21 @@ async function aboutMe(req, res, next){
 
 async function projects(req, res, next){
     try {
-        let result = await db.Project.findAll({
+        let result;
+        const cacheResults = await redisClient.get('projects');
+        if (cacheResults) {            
+            result = JSON.parse(cacheResults);
+            res.status(200).json(result);
+            return;
+        }
+        result = await db.Project.findAll({
             attributes: {
                 exclude: ['id', 'description', 'createdAt', 'updatedAt', 'AuthorId'],
             }
         });
+        await redisClient.set('projects', JSON.stringify(result));
         res.status(200).json(result);
+        return;
     }
     catch (err){
         console.log(err);
@@ -59,7 +96,14 @@ async function projectsByCategory(req, res, next){
             next(createError(404, "Project category does not exist"));
             return;
         }
-        let result = await db.Project.findAll({
+        let result;
+        const cacheResults = await redisClient.get('projects#' + req.params.categoryId);
+        if (cacheResults) {            
+            result = JSON.parse(cacheResults);
+            res.status(200).json(result);
+            return;
+        }
+        result = await db.Project.findAll({
             where: {
                 ProjectCategoryId: req.params.categoryId,
             },
@@ -67,6 +111,7 @@ async function projectsByCategory(req, res, next){
                 include: ['name', 'link', 'image'],
             }
         });
+        await redisClient.set('projects#' + req.params.categoryId, JSON.stringify(result));
         res.status(200).json(result);
     }
     catch (err){
@@ -90,6 +135,12 @@ async function blogsByPage(req, res, next){
             return;
         }    
         let result = {};
+        const cacheResults = await redisClient.get('blogsByPage#' + req.query.pageNo + '#' + perPage);
+        if (cacheResults) {            
+            result = JSON.parse(cacheResults);
+            res.status(200).json(result);
+            return;
+        }
         result.blogs = await db.Blog.findAll({
             limit: perPage || process.env.BLOGS_PER_PAGE,
             offset: (req.query.pageNo - 1) * process.env.BLOGS_PER_PAGE,
@@ -104,6 +155,7 @@ async function blogsByPage(req, res, next){
         result.end = Math.ceil(totalBlogs / process.env.BLOGS_PER_PAGE) === req.query.pageNo? true: false;
         result.maxBlogs = totalBlogs;
         result.numberOfBlogsPerPage = perPage || process.env.BLOGS_PER_PAGE;
+        await redisClient.set('blogsByPage#' + req.query.pageNo + '#' + perPage, JSON.stringify(result));
         res.status(200).json(result);
         return;
     }

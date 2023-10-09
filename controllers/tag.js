@@ -1,13 +1,32 @@
 const db = require('../models/index');
 const createError = require('http-errors');
+const redis = require('redis');
+
+let redisClient;
+
+(async () => {
+	redisClient = redis.createClient();
+
+	redisClient.on("error", (error) => console.error(`Error : ${error}`));
+
+	await redisClient.connect();
+})();
 
 async function tags(req, res, next){
     try {
-        let result = await db.Tag.findAll({
+        let result;
+        const cacheResults = await redisClient.get('tags');
+        if (cacheResults) {            
+            result = JSON.parse(cacheResults);
+            res.status(200).json(result);
+            return;
+        }
+        result = await db.Tag.findAll({
             attributes: {
                 exclude: ['updatedAt', 'createdAt'],
             }
         });
+        await redisClient.set('tags', JSON.stringify(result));
         res.status(200).json(result);
         return;
     }
